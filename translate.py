@@ -2,16 +2,20 @@
 
 import sys
 
-def translate_sequence(rna_sequence, genetic_code):
-    """Translates a sequence of RNA into a sequence of amino acids.
+def get_all_translations(rna_sequence, genetic_code):
+    """Get a list of all amino acid sequences encoded by an RNA sequence.
 
-    Translates `rna_sequence` into string of amino acids, according to the
-    `genetic_code` given as a dict. Translation begins at the first position of
-    the `rna_sequence` and continues until the first stop codon is encountered
-    or the end of `rna_sequence` is reached.
+    All three reading frames of `rna_sequence` are scanned from 'left' to
+    'right', and the generation of a sequence of amino acids is started
+    whenever the start codon 'AUG' is found. The `rna_sequence` is assumed to
+    be in the correct orientation (i.e., no reverse and/or complement of the
+    sequence is explored).
 
-    If `rna_sequence` is less than 3 bases long, or starts with a stop codon,
-    an empty string is returned.
+    The function returns a list of all possible amino acid sequences that
+    are encoded by `rna_sequence`.
+
+    If no amino acids can be translated from `rna_sequence`, an empty list is
+    returned.
 
     Parameters
     ----------
@@ -25,29 +29,43 @@ def translate_sequence(rna_sequence, genetic_code):
 
     Returns
     -------
-    str
-        A string of the translated amino acids.
+    list
+        A list of strings; each string is an sequence of amino acids encoded by
+        `rna_sequence`.
     """
-    if len(rna_sequence) < 3:
-        return ""
-
     rna_sequence = rna_sequence.upper()
-    protein = ""
+    number_of_bases = len(rna_sequence)
+    last_codon_index = number_of_bases - 3
+    if last_codon_index < 0:
+        return []
+    amino_acid_seq_list = []
+    for base_index in range(last_codon_index + 1):
+        codon = rna_sequence[base_index: base_index + 3]
+        if codon == "AUG":
+            aa_seq = translate_sequence(
+                    rna_sequence = rna_sequence[base_index:],
+                    genetic_code = genetic_code)
+            if aa_seq:
+                amino_acid_seq_list.append(aa_seq)
+    return amino_acid_seq_list
 
-    for i in range(0, len(rna_sequence), 3):
-        codon = rna_sequence[i:i+3]
+def get_reverse(sequence):
+    """Reverse orientation of `sequence`.
 
-        if len(codon) < 3:
-            break
+    Returns a string with `sequence` in the reverse order.
 
-        amino = genetic_code[codon]
+    If `sequence` is empty, an empty string is returned.
 
-        if amino == "*":
-            break
+    Examples
+    --------
+    >>> get_reverse('AUGC')
+    'CGUA'
+    """
+    seq_list = list(sequence.upper())
+    seq_list.reverse()
+    rev_seq = "".join(seq_list)
+    return rev_seq
 
-        protein += amino
-
-    return protein
 
 def get_all_translations(rna_sequence, genetic_code):
     """Get a list of all amino acid sequences encoded by an RNA sequence.
