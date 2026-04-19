@@ -120,7 +120,7 @@ def vet_codon(codon):
     # only valid codons.
     # Read the docstring above for additional clues.
     #codon_pattern_str = r'AUG'
-    codon_pattern_str = r'^([AUCG]{3}|[ATCG]{3})$'
+    codon_pattern_str = r'^([AUCGaucg]{3}|[ATCGatcg]{3})$'
     ##########################################################################
 
     codon_pattern = re.compile(codon_pattern_str)
@@ -209,7 +209,8 @@ def find_first_orf(sequence,
     # frame.
     # Read the docstring above for additional clues.
     #orf_pattern_str = r'AUGGUAUAA'
-    orf_pattern_str = r'AUG(?:[AUCG]{3})*?(?:UAA|UAG|UGA)'
+    #orf_pattern_str = r'AUG(?:[AUCG]{3})*?(?:UAA|UAG|UGA)'
+    orf_pattern_str = rf"(?:{'|'.join(starts)})(?:[AUCG]{{3}})*?(?:{'|'.join(stops)})"
     ##########################################################################
 
     # Create the regular expression object
